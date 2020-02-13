@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const config = require('./app/common/env.config.js');
 
 // create express app
 const app = express();
@@ -19,6 +19,6 @@ app.get('/', (req, res) => {
 require('./app/routes/patient.routes.js')(app);
 
 // listen for requests
-app.listen(3000, () => {
-    console.log("Server is listening on port 3000");
+app.listen(config.Port, () => {
+    console.log("Server is listening on port " + config.Port);
 });

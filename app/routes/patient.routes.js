@@ -12,18 +12,24 @@
 
 module.exports = (router) => {
     const patient = require('../controllers/PatientController.js');
+    const auth = require('../controllers/AuthController.js');
+    const user = require('../controllers/UserController.js');
 
     // // For Authentication
-    router.post('/auth',patient.getCode);
-    router.post('/token',patient.getToken);
+    router.post('/auth/code',auth.getCode);
+    router.post('/auth/token',auth.getToken);
 
 
     // // For Patient Functionalities
     router.route('/patient/:pId')
-        .get(patient.getPatient)
-        .put(patient.updatePatient)
-        .delete(patient.deletePatient);
+          .get(patient.getPatient)
+          .put(patient.updatePatient)
+          .delete(patient.deletePatient);
+    router.get('/patient/getAllPatients',patient.getAllPatients);
+    router.post('/patient/postPatient',patient.postPatient);
 
-    router.post('/patient',patient.postPatient);
-    
+    // // For User Functionalities
+    router.post('/user/postUser',user.postUser);
+    router.put('/user/updateUser',user.updateUser);
+    router.put('/user/activeUser',user.deactiveUser);
 }

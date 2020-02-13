@@ -1,42 +1,5 @@
-const Auth = require('../models/auth.model.js');
 const request = require('request');
 const config = require('../common/env.config.js');
-
-
-// // Generate Code for get the token
-exports.getCode = (req, res) => {
-    if (!req.body) {
-        return res.status(400).send({
-            message: "Credential can not be empty"
-        });
-    }
-
-    request.post({
-        url: config.auth_url,
-        body: req.body,
-        json: true
-    }, function (error, res1) {
-        return res.status(200).send(res1.body);
-    });
-
-}
-
-// // Generate Access Token
-exports.getToken = (req, res) => {
-    if (!req.body) {
-        return res.status(400).send({
-            message: 'Credentials can not be empty'
-        });
-    }
-    req.body.grant_type = config.grant_type;
-    request.post({
-        url: config.token_url,
-        body: req.body,
-        json: true
-    }, function (error, res1) {
-        return res.status(200).send(res1.body);
-    });
-}
 
 // // Get All The Patient Details
 exports.getAllPatients = (req, res) => {
@@ -59,6 +22,9 @@ exports.getAllPatients = (req, res) => {
                 'Authorization': 'Bearer ' + token
             }
         }, function (error, res1) {
+            if (error) {
+                return res.status(500).send(error);
+            }
             return res.status(200).send(res1.body);
         });
     } else {
@@ -89,6 +55,9 @@ exports.getPatient = (req, res) => {
                 'Authorization': 'Bearer ' + token
             }
         }, function (error, res1) {
+            if (error) {
+                return res.status(500).send(error);
+            }
             return res.status(200).send(res1.body);
         });
     }
@@ -96,11 +65,16 @@ exports.getPatient = (req, res) => {
 
 // // Create new Patient
 exports.postPatient = (req, res) => {
-    if (!req.body.content) {
+    if (Object.keys(req.body).length === 0) {
         return res.status(400).send({
-            message: 'Patient Details can not be empty'
+            message: "Patient Details is required"
         });
+    } else if (!req.body.id) {
+        return res.status(400).send({
+            message: "Id of patient is required"
+        })
     }
+
     let token = req.headers['x-access-token'] || req.headers['authorization'];
     if (token === undefined || token == '') {
         return res.status(400).json({
@@ -120,6 +94,9 @@ exports.postPatient = (req, res) => {
                 'Authorization': 'Bearer ' + token
             }
         }, function (error, res1) {
+            if (error) {
+                return res.status(500).send(error);
+            }
             return res.status(200).send(res1.body);
         });
     }
@@ -127,16 +104,18 @@ exports.postPatient = (req, res) => {
 
 // // Update The Patient Details by using id
 exports.updatePatient = (req, res) => {
-    if (!req.body.content) {
-        if(!req.body.id) {
-            return res.status(400).send({
-                message : 'Patient id must be required'
-            })
-        }
+
+    if (Object.keys(req.body).length === 0) {
         return res.status(400).send({
-            message: 'Patient Details can not be empty'
+            message: "Patient Details is required"
         });
-    } 
+    } else if (!req.body.id) {
+        return res.status(400).send({
+            message: "Id of patient is required"
+        })
+    }
+
+
     let token = req.headers['x-access-token'] || req.headers['authorization'];
     if (token === undefined || token == '') {
         return res.status(400).json({
@@ -157,13 +136,16 @@ exports.updatePatient = (req, res) => {
                 'Authorization': 'Bearer ' + token
             }
         }, function (error, res1) {
+            if(error) {
+                return res.status(500).send(error);
+            }
             return res.status(200).send(res1.body);
         });
     }
 }
 
-// // Delete The Patient by using id
-exports.deletePatient = (req,res) => {
+// // // Delete The Patient by using id
+exports.deletePatient = (req, res) => {
     let token = req.headers['x-access-token'] || req.headers['authorization'];
     if (token === undefined || token == '') {
         return res.status(400).json({
@@ -175,14 +157,17 @@ exports.deletePatient = (req,res) => {
         token = token.slice(7, token.length);
     }
 
-    if(token) {
+    if (token) {
         request.delete({
-            url : config.patient_url + '/' + req.params.pId,
-            json : true,
+            url: config.patient_url + '/' + req.params.pId,
+            json: true,
             headers: {
                 'Authorization': 'Bearer ' + token
             }
-        }, function (error,res1) {
+        }, function (error, res1) {
+            if(error) {
+                return res.status(500).send(error);
+            }
             return res.status(200).send(res1.body);
         })
     }
